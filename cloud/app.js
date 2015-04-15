@@ -44,7 +44,7 @@ app.post('/generate', function (req, res) {
     })
 });
 
-app.get('/bind/:salesmanId', function (req, res) {
+app.get('/salesman/:salesmanId', function (req, res) {
     var id = req.param('salesmanId');
     var client_mobileNumber = req.param('client_mobileNumber');
     console.log(id);
