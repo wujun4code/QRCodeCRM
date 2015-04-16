@@ -4,47 +4,56 @@ var app = express();
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 
+
 app.use(express.static('public'));
-app.use(express.cookieParser());
 // App 全局配置
 app.set('views', 'cloud/views'); // 设置模板目录
 app.set('view engine', 'ejs'); // 设置 template 引擎
-app.use(express.bodyParser()); // 读取请求 body 的中间件
-app.use(express.session({
-    secret: 'keyboard cat'
-}));
 
+app.use(express.bodyParser()); // 读取请求 body 的中间件
+app.use(express.cookieParser())
+app.use(express.session({
+    secret: 'leancloud',
+    cookie: {
+        maxAge: 60000
+    }
+}));
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.use(new LocalStrategy(
+
+passport.use('local', new LocalStrategy(
     function (username, password, done) {
-        User.findOne({
-            username: username
-        }, function (err, user) {
-            if (err) {
-                return done(err);
-            }
-            if (!user) {
+
+        AV.User.logIn(username, password, {
+            success: function (user) {
+                // Do stuff after successful login.
+                return done(null, user);
+            },
+            error: function (user, error) {
+                // The login failed. Check error to see why.
                 return done(null, false, {
-                    message: 'Incorrect username.'
+                    message: 'Authenticated failed!'
                 });
             }
-            if (!user.validPassword(password)) {
-                return done(null, false, {
-                    message: 'Incorrect password.'
-                });
-            }
-            return done(null, user);
         });
     }
 ));
 
+// admin 
+app.get('/admin', passport.authenticate('local', {
+    successRedirect: '/',
+    failureRedirect: '/login'
+}));
+
+app.get('/login', function (req, res) {
+    res.render('login');
+});
+
 app.post('/login',
     passport.authenticate('local', {
-        successRedirect: '/',
+        successRedirect: '/admin',
         failureRedirect: '/login',
-        failureFlash: true
     })
 );
 
@@ -52,10 +61,14 @@ passport.serializeUser(function (user, done) {
     done(null, user.id);
 });
 
-passport.deserializeUser(function (id, done) {
-    User.findById(id, function (err, user) {
-        done(err, user);
-    });
+passport.deserializeUser(function (user, done) {
+//    User.findById(id, function (err, user) {
+//        done(err, user);
+//    });
+    //console.log(id);
+    console.log(done);
+    done(null, user);
+    
 });
 
 
@@ -131,11 +144,6 @@ app.post('/bind', function (req, res) {
         },
         error: function (object, error) {}
     });
-});
-
-// admin 
-app.get('/admin', function (req, res) {
-
 });
 
 // 最后，必须有这行代码来使 express 响应 HTTP 请求

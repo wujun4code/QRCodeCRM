@@ -1,0 +1,10 @@
+{
+    "name": "cloud-code-test",
+    "description": "Cloud Code test project.",
+    "version": "0.0.1",
+    "private": true,
+    "dependencies": {
+        "passport": "0.2.1",
+        "passport-local": "1.0.0"
+    }
+}
