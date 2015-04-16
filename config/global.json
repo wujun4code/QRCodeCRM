@@ -3,6 +3,8 @@
     "applicationId": "874sdtpezurqpm7arp2wn6vypprff0nu8i5t819oapc76xd2",
     "applicationKey": "81wl20p4kmf6jj19s6rwfm3gkrwclu2j1kdvxws1779h6tcg",
     "global": {
-        "avVersion": "0.3.1"
+        "avVersion": "0.3.1",
+        "passport":"0.2.1",
+        "passport-local":"1.0.0"
     }
 }
