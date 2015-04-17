@@ -1,15 +1,29 @@
-<!DOCTYPE html>
-<html>
+<table class="table table-hover table-sortable">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>客户手机号</th>
+            <th>销售手机号</th>
+            <th>扫码时间</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% clients.forEach (function (client){ %>
+            <tr>
+                <td class="table-id" data-sort-value="<%=client.mobileNumber%>">#
 
-<head>
-    <title>销售-客户对应关系表</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.4/css/bootstrap.min.css">
-    <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
-    <script type="text/javascript" src="http://upcdn.b0.upaiyun.com/libs/jquery/jquery-2.0.3.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-</head>
+                </td>
+                <td class="table-title">
+                    <%= client.get('mobileNumber')%>
+                </td>
+                <td class="table-status">
+                 <%= client.get('salesman').get('mobileNumber')%>
+                </td>
 
-<body>
-</body>
+                <td class="table-status">
+                   <%= moment(client.updatedAt).fromNow() %>
+                </td>
+            </tr>
+            <% }) %>
+    </tbody>
+</table>

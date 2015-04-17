@@ -3,8 +3,7 @@ var express = require('express');
 var app = express();
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
-var vash = require('vash');
-
+var expressLayouts = require('express-ejs-layouts');
 app.use(express.static('public'));
 // App 全局配置
 app.set('views', 'cloud/views'); // 设置模板目录
@@ -18,9 +17,13 @@ app.use(express.session({
         maxAge: 60000
     }
 }));
+
+app.use(expressLayouts);
+
 app.use(passport.initialize());
 app.use(passport.session());
-
+var moment = require('moment');
+moment.lang('zh-cn');
 passport.use('local', new LocalStrategy(
     function (username, password, done) {
 
@@ -39,13 +42,28 @@ passport.use('local', new LocalStrategy(
     }
 ));
 
-// admin 
-app.get('/admin', ensureAuthenticated, function(req, res){
-  res.render('admin', { user: req.user });
+// admin
+app.get('/admin', ensureAuthenticated, function (req, res) {
+    var query = new AV.Query("Client");
+    query.include("salesman");
+    query.descending("createdAt");
+    query.find().then(function (clients) {
+        clients = clients || [];
+        console.log(clients);
+        res.render('admin', {
+            user: req.user,
+            title: "销售-客户对应表",
+            clients: clients,
+            moment : moment
+        });
+    });
+
 });
 
 app.get('/login', function (req, res) {
-    res.render('login');
+    res.render('login', {
+        title: "登陆"
+    });
 });
 
 app.post('/login',
@@ -60,13 +78,13 @@ passport.serializeUser(function (user, done) {
 });
 
 passport.deserializeUser(function (user, done) {
-//    User.findById(id, function (err, user) {
-//        done(err, user);
-//    });
+    //    User.findById(id, function (err, user) {
+    //        done(err, user);
+    //    });
     //console.log(id);
     console.log(done);
     done(null, user);
-    
+
 });
 
 // Simple route middleware to ensure user is authenticated.
@@ -75,9 +93,11 @@ passport.deserializeUser(function (user, done) {
 //   the request will proceed.  Otherwise, the user will be redirected to the
 //   login page.
 function ensureAuthenticated(req, res, next) {
-  console.log(req);
-  if (req.isAuthenticated()) { return next(); }
-  res.redirect('/login')
+    console.log(req);
+    if (req.isAuthenticated()) {
+        return next();
+    }
+    res.redirect('/login')
 }
 
 // 使用 Express 路由 API 服务 /hello 的 HTTP GET 请求
@@ -86,7 +106,9 @@ app.get('/', function (req, res) {
 });
 
 app.get('/generate', function (req, res) {
-    res.render('generate');
+    res.render('generate', {
+        title: "二维码生成"
+    });
 });
 
 app.post('/generate', function (req, res) {

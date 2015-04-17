@@ -1,57 +1,41 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-    <title>二维码生成工具</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.4/css/bootstrap.min.css">
-    <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
-    <script type="text/javascript" src="http://upcdn.b0.upaiyun.com/libs/jquery/jquery-2.0.3.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="/js/qrcode.min.js"></script>
-</head>
-
-<body>
-    <div class="form-horizontal">
-        <form id="salesman_form" class="form-horizontal" autocomplete="on" method="POST">
-            <div class="form-group">
-                <label class="col-sm-2 control-label">手机号：</label>
-                <div class="col-sm-10">
-                    <input id="text" type="text" class="form-control" name="salesman_mobileNumber" autocomplete="on" placeholder="手机号">
-                </div>
+<div class="form-horizontal">
+    <form id="salesman_form" class="form-horizontal" autocomplete="on" method="POST">
+        <div class="form-group">
+            <label class="col-sm-2 control-label">手机号：</label>
+            <div class="col-sm-10">
+                <input id="text" type="text" class="form-control" name="salesman_mobileNumber" autocomplete="on" placeholder="手机号">
             </div>
-            <div class="form-group">
-                <div class="col-sm-12">
-                    <button id="generate" class="col-sm-2 col-md-offset-2 btn btn-primary" data-loading-text="正在生成……" autocomplete="off">生成</button>
-                </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-12">
+                <button id="generate" class="col-sm-2 col-md-offset-2 btn btn-primary" data-loading-text="正在生成……" autocomplete="off">生成</button>
             </div>
-            <div class="form-group">
-                <div class="col-sm-2 col-md-offset-2" id="qrcode"></div>
-            </div>
-        </form>
-    </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2 col-md-offset-2" id="qrcode"></div>
+        </div>
+    </form>
+</div>
 
-    <script type="text/javascript">
-        var qrcode = new QRCode(document.getElementById("qrcode"), {
-            width: 128,
-            height: 128
+<script type="text/javascript">
+    var qrcode = new QRCode(document.getElementById("qrcode"), {
+        width: 128,
+        height: 128
+    });
+    $("#generate").click(function () {
+        var btn = $(this);
+        btn.button("loading");
+        var url = "/generate"; // the script where you handle the form input.
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: $("#salesman_form").serialize(),
+            success: function (data) {
+                var urlText = data.url;
+                qrcode.makeCode(urlText);
+                btn.button('reset');
+            }
         });
-        $("#generate").click(function () {
-            var btn = $(this);
-            btn.button("loading");
-            var url = "/generate"; // the script where you handle the form input.
-            $.ajax({
-                type: "POST",
-                url: url,
-                data: $("#salesman_form").serialize(),
-                success: function (data) {
-                    var urlText=data.url;
-                    qrcode.makeCode(urlText);
-                    btn.button('reset');
-                }
-            });
-            return false; // avoid to execute the actual submit of the form.
-        });
-    </script>
-</body>
+        return false; // avoid to execute the actual submit of the form.
+    });
+</script>
