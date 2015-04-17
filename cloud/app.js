@@ -3,7 +3,7 @@ var express = require('express');
 var app = express();
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
-
+var vash = require('vash');
 
 app.use(express.static('public'));
 // App 全局配置
@@ -20,7 +20,6 @@ app.use(express.session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-
 
 passport.use('local', new LocalStrategy(
     function (username, password, done) {
@@ -41,10 +40,9 @@ passport.use('local', new LocalStrategy(
 ));
 
 // admin 
-app.get('/admin', passport.authenticate('local', {
-    successRedirect: '/',
-    failureRedirect: '/login'
-}));
+app.get('/admin', ensureAuthenticated, function(req, res){
+  res.render('admin', { user: req.user });
+});
 
 app.get('/login', function (req, res) {
     res.render('login');
@@ -71,7 +69,16 @@ passport.deserializeUser(function (user, done) {
     
 });
 
-
+// Simple route middleware to ensure user is authenticated.
+//   Use this route middleware on any resource that needs to be protected.  If
+//   the request is authenticated (typically via a persistent login session),
+//   the request will proceed.  Otherwise, the user will be redirected to the
+//   login page.
+function ensureAuthenticated(req, res, next) {
+  console.log(req);
+  if (req.isAuthenticated()) { return next(); }
+  res.redirect('/login')
+}
 
 // 使用 Express 路由 API 服务 /hello 的 HTTP GET 请求
 app.get('/', function (req, res) {
