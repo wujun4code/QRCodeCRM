@@ -144,7 +144,8 @@ app.get('/salesman/:salesmanId', function (req, res) {
     var client_mobileNumber = req.param('client_mobileNumber');
     console.log(id);
     res.render('bind', {
-        salesmanId: id
+        salesmanId: id,
+        title:'绑定手机号'
     });
 });
 
